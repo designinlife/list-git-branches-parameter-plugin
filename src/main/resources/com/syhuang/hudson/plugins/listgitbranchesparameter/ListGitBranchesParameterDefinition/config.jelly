@@ -90,7 +90,7 @@
         </f:entry>
 
         <f:entry title="${%parameter.list.size}" field="listSize">
-            <f:textbox default="5"/>
+            <f:textbox default="1"/>
         </f:entry>
     </f:advanced>
 </j:jelly>

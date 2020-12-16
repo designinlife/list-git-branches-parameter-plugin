@@ -46,7 +46,7 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
     private static final String PARAMETER_TYPE_BRANCH = "PT_BRANCH";
     private static final String PARAMETER_TYPE_TAG_BRANCH = "PT_BRANCH_TAG";
     private static final String EMPTY_JOB_NAME = "EMPTY_JOB_NAME";
-    private static final String DEFAULT_LIST_SIZE = "5";
+    private static final String DEFAULT_LIST_SIZE = "1";
     private static final String REFS_TAGS_PATTERN = ".*refs/tags/";
     private static final String REFS_HEADS_PATTERN = ".*refs/heads/";
     private static final Logger LOGGER = Logger.getLogger(ListGitBranchesParameterDefinition.class.getName());
@@ -61,7 +61,6 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
     private SelectedValue selectedValue;
     private Boolean quickFilterEnabled;
     private String listSize;
-
 
     @DataBoundConstructor
     public ListGitBranchesParameterDefinition(String name, String description, String remoteURL, String credentialsId, String defaultValue,
@@ -330,7 +329,7 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
                 if (matcher.groupCount() == 1) {
                     branchSet.add(matcher.group(1));
                 } else {
-                    branchSet.add(branchName);
+                    branchSet.add(branchName.replaceFirst(REFS_HEADS_PATTERN, ""));
                 }
             }
         }
@@ -355,7 +354,6 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
                 Set<String> branchSet = getBranch(gitClient, remoteURL);
                 sortAndPutToParam(branchSet, paramList);
             }
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             paramList.clear();
@@ -371,7 +369,6 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
     private Boolean isBranchType() {
         return type.equalsIgnoreCase(PARAMETER_TYPE_BRANCH) || type.equalsIgnoreCase(PARAMETER_TYPE_TAG_BRANCH);
     }
-
 
     private GitClient createGitClient(Job job) throws IOException, InterruptedException {
         EnvVars env = Objects.requireNonNull(Objects.requireNonNull(Jenkins.getInstance()).toComputer()).getEnvironment();
@@ -448,9 +445,9 @@ public class ListGitBranchesParameterDefinition extends ParameterDefinition impl
                                     CredentialsMatchers.instanceOf(SSHUserPrivateKey.class)
                             ),
                             CredentialsProvider.lookupCredentials(StandardCredentials.class,
-                                    context,
-                                    ACL.SYSTEM,
-                                    domainRequirements)
+                                                                  context,
+                                                                  ACL.SYSTEM,
+                                                                  domainRequirements)
                     );
         }
 
